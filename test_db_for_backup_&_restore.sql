@@ -1,5 +1,7 @@
 USE [master]
 GO
+drop database if exists [TestDatabase]
+go
 CREATE DATABASE [TestDatabase]
  CONTAINMENT = NONE
  ON  PRIMARY 
@@ -28,17 +30,19 @@ INSERT INTO MainDataTable3 VALUES (1, 100);
 INSERT INTO ArchiveDataTable2 VALUES (1, 'Note for ArchiveData');
 INSERT INTO ArchiveDataTable3 VALUES (1, 'Active');
 
-BACKUP DATABASE TestDatabase
-FILEGROUP = 'PRIMARY'
-TO DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.bak'
-WITH INIT, FORMAT;
-go
-
 -- Создание частичной резервной копии для файловой группы "ArchiveData"
 BACKUP DATABASE TestDatabase
-FILEGROUP = 'ArchiveData'
-TO DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialArchiveDataBackup.bak'
-WITH INIT, FORMAT;
+	FILEGROUP = 'ArchiveData'
+	TO DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialArchiveDataBackup.bak'
+	WITH INIT, FORMAT;
+go
+
+INSERT INTO MainDataTable2 VALUES (1, 'Product FF'); -- ЭТО КЛЮЧЕВОЙ МОМЕНТ, КОТОРЫЙ СЭКОНОМИТ КУЧУ ЭЛЕКТРОЭНЕРГИИ)))
+
+BACKUP DATABASE TestDatabase
+	FILEGROUP = 'PRIMARY'
+	TO DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.bak'
+	WITH INIT, FORMAT;
 go
 
 
@@ -50,7 +54,14 @@ INSERT INTO MainDataTable2 VALUES (1, 'Product FF');
 INSERT INTO ArchiveDataTable2 VALUES (1, 'Note22 for ArchiveData');
 
 
-BACKUP LOG [TestDatabase] TO  DISK = N'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.trn' WITH NOFORMAT, INIT,  NAME = N'TestDatabase-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10
+BACKUP LOG [TestDatabase] TO DISK = N'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.trn' 
+	WITH NOFORMAT,
+        INIT,
+        NAME = N'TestDatabase-Full Database Backup',
+                SKIP,
+                NOREWIND,
+                NOUNLOAD,
+                STATS = 10 
 GO
 
 
@@ -58,17 +69,17 @@ GO
 use master
 go
 RESTORE DATABASE TestDatabase
-FILEGROUP = 'PRIMARY'
-FROM DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.bak'
-WITH REPLACE, RECOVERY;
+	FILEGROUP = 'PRIMARY'
+	FROM DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.bak'
+	WITH REPLACE, RECOVERY;
 go
 
 use master
 go
 RESTORE DATABASE TestDatabase
-FILEGROUP = 'ArchiveData'
-FROM DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialArchiveDataBackup.bak'
-WITH REPLACE, RECOVERY;
+	FILEGROUP = 'ArchiveData'
+	FROM DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialArchiveDataBackup.bak'
+	WITH REPLACE, RECOVERY;
 go
 
 
@@ -78,3 +89,8 @@ GO
 use [TestDatabase];
 select * from MainDataTable2;
 select * from ArchiveDataTable2;
+
+USE [master]
+GO
+drop database [TestDatabase]
+go
