@@ -1,42 +1,20 @@
--- Создание тестовой базы данных
-CREATE DATABASE TestDatabase;
+USE [master]
+GO
+CREATE DATABASE [TestDatabase]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'MainDataFile1', FILENAME = N'D:\MSSQL15.DBA01\MSSQL\DATA\TestDatabase.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 307200KB ), 
+ FILEGROUP [ArchiveData] 
+( NAME = N'ArchiveDataFile1', FILENAME = N'D:\MSSQL15.DBA01\MSSQL\DATA\ArchiveDataFile1.ndf' , SIZE = 10240KB , MAXSIZE = UNLIMITED, FILEGROWTH = 5120KB )
+ LOG ON 
+( NAME = N'TestDatabase_log', FILENAME = N'D:\MSSQL15.DBA01\MSSQL\DATA\TestDatabase_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 307200KB )
+ WITH CATALOG_COLLATION = DATABASE_DEFAULT
+GO
 
--- Создание первой файловой группы
-ALTER DATABASE TestDatabase
-ADD FILEGROUP MainData;
-
--- Добавление файла в первую файловую группу
-ALTER DATABASE TestDatabase
-ADD FILE
-(
-    NAME = 'MainDataFile1',
-    FILENAME = 'C:\Path\To\Data\MainDataFile1.ndf',
-    SIZE = 10MB,
-    MAXSIZE = UNLIMITED,
-    FILEGROWTH = 5MB
-)
-TO FILEGROUP MainData;
-
--- Создание второй файловой группы
-ALTER DATABASE TestDatabase
-ADD FILEGROUP ArchiveData;
-
--- Добавление файла во вторую файловую группу
-ALTER DATABASE TestDatabase
-ADD FILE
-(
-    NAME = 'ArchiveDataFile1',
-    FILENAME = 'C:\Path\To\Data\ArchiveDataFile1.ndf',
-    SIZE = 10MB,
-    MAXSIZE = UNLIMITED,
-    FILEGROWTH = 5MB
-)
-TO FILEGROUP ArchiveData;
-
--- Добавление таблиц в файловую группу "MainData"
+-- Добавление таблиц в файловую группу "PRIMARY"
 USE TestDatabase;
-CREATE TABLE MainDataTable2 (ID INT, ProductName VARCHAR(50)) ON MainData;
-CREATE TABLE MainDataTable3 (ID INT, Quantity INT) ON MainData;
+CREATE TABLE MainDataTable2 (ID INT, ProductName VARCHAR(50));
+CREATE TABLE MainDataTable3 (ID INT, Quantity INT);
 
 -- Добавление таблиц в файловую группу "ArchiveData"
 CREATE TABLE ArchiveDataTable2 (ID INT, Note VARCHAR(100)) ON ArchiveData;
@@ -50,27 +28,53 @@ INSERT INTO MainDataTable3 VALUES (1, 100);
 INSERT INTO ArchiveDataTable2 VALUES (1, 'Note for ArchiveData');
 INSERT INTO ArchiveDataTable3 VALUES (1, 'Active');
 
--- Создание частичной резервной копии для файловой группы "MainData"
 BACKUP DATABASE TestDatabase
-FILEGROUP = 'MainData'
-TO DISK = 'C:\Path\To\Backup\PartialMainDataBackup.bak'
+FILEGROUP = 'PRIMARY'
+TO DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.bak'
 WITH INIT, FORMAT;
+go
 
 -- Создание частичной резервной копии для файловой группы "ArchiveData"
 BACKUP DATABASE TestDatabase
 FILEGROUP = 'ArchiveData'
-TO DISK = 'C:\Path\To\Backup\PartialArchiveDataBackup.bak'
+TO DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialArchiveDataBackup.bak'
 WITH INIT, FORMAT;
+go
 
 
--- Восстановление частичной резервной копии для файловой группы "MainData"
+use [TestDatabase];
+select * from MainDataTable2;
+select * from ArchiveDataTable2;
+
+INSERT INTO MainDataTable2 VALUES (1, 'Product FF');
+INSERT INTO ArchiveDataTable2 VALUES (1, 'Note22 for ArchiveData');
+
+
+BACKUP LOG [TestDatabase] TO  DISK = N'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.trn' WITH NOFORMAT, INIT,  NAME = N'TestDatabase-Full Database Backup', SKIP, NOREWIND, NOUNLOAD,  STATS = 10
+GO
+
+
+-- Восстановление частичной резервной копии для файловой группы "PRIMARY"
+use master
+go
 RESTORE DATABASE TestDatabase
-FILEGROUP = 'MainData'
-FROM DISK = 'C:\Path\To\Backup\PartialMainDataBackup.bak'
+FILEGROUP = 'PRIMARY'
+FROM DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.bak'
 WITH REPLACE, RECOVERY;
+go
 
--- Восстановление частичной резервной копии для файловой группы "ArchiveData"
+use master
+go
 RESTORE DATABASE TestDatabase
 FILEGROUP = 'ArchiveData'
-FROM DISK = 'C:\Path\To\Backup\PartialArchiveDataBackup.bak'
+FROM DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialArchiveDataBackup.bak'
 WITH REPLACE, RECOVERY;
+go
+
+
+RESTORE LOG [TestDatabase] FROM  DISK = N'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.trn' WITH  FILE = 1,  NOUNLOAD,  STATS = 10, RECOVERY
+GO
+
+use [TestDatabase];
+select * from MainDataTable2;
+select * from ArchiveDataTable2;
