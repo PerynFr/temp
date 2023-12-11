@@ -31,15 +31,17 @@ INSERT INTO MainDataTable3 VALUES (1, 100);
 INSERT INTO ArchiveDataTable2 VALUES (1, 'Note for ArchiveData');
 INSERT INTO ArchiveDataTable3 VALUES (1, 'Active');
 
--- Создание частичной резервной копии для файловой группы "ArchiveData"
+-- Создание частичной резервной копии для файловой группы "ArchiveData", дальше ее можно не бэкапить часто
 BACKUP DATABASE TestDatabase
 	FILEGROUP = 'ArchiveData'
 	TO DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialArchiveDataBackup.bak'
 	WITH INIT, FORMAT;
 go
 
+--имитируем вставку данных в файловую группу "PRIMARY"
 INSERT INTO MainDataTable2 VALUES (1, 'Product FF'); -- ЭТО КЛЮЧЕВОЙ МОМЕНТ, КОТОРЫЙ СЭКОНОМИТ КУЧУ ЭЛЕКТРОЭНЕРГИИ))) потом-что ArchiveData больше бэкапить ненадо
 
+--делаем бэкап только PRIMARY 
 BACKUP DATABASE TestDatabase
 	FILEGROUP = 'PRIMARY'
 	TO DISK = 'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.bak'
@@ -51,10 +53,11 @@ use [TestDatabase];
 select * from MainDataTable2;
 select * from ArchiveDataTable2;
 
+--имитируем вставку данных в файловую группу "PRIMARY"
 INSERT INTO MainDataTable2 VALUES (1, 'Product FF');
 INSERT INTO ArchiveDataTable2 VALUES (1, 'Note22 for ArchiveData');
 
-
+--бэкапим лог
 BACKUP LOG [TestDatabase] TO DISK = N'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.trn' 
 	WITH NOFORMAT,
         INIT,
@@ -75,6 +78,7 @@ RESTORE DATABASE TestDatabase
 	WITH REPLACE, RECOVERY;
 go
 
+-- Восстановление частичной резервной копии для файловой группы "PRIMARY"
 use master
 go
 RESTORE DATABASE TestDatabase
@@ -83,7 +87,7 @@ RESTORE DATABASE TestDatabase
 	WITH REPLACE, RECOVERY;
 go
 
-
+-- Восстановление лога
 RESTORE LOG [TestDatabase] FROM  DISK = N'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.trn' WITH  FILE = 1,  NOUNLOAD,  STATS = 10, RECOVERY
 GO
 
