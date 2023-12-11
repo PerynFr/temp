@@ -50,3 +50,27 @@ INSERT INTO MainDataTable3 VALUES (1, 100);
 INSERT INTO ArchiveDataTable2 VALUES (1, 'Note for ArchiveData');
 INSERT INTO ArchiveDataTable3 VALUES (1, 'Active');
 
+-- Создание частичной резервной копии для файловой группы "MainData"
+BACKUP DATABASE TestDatabase
+FILEGROUP = 'MainData'
+TO DISK = 'C:\Path\To\Backup\PartialMainDataBackup.bak'
+WITH INIT, FORMAT;
+
+-- Создание частичной резервной копии для файловой группы "ArchiveData"
+BACKUP DATABASE TestDatabase
+FILEGROUP = 'ArchiveData'
+TO DISK = 'C:\Path\To\Backup\PartialArchiveDataBackup.bak'
+WITH INIT, FORMAT;
+
+
+-- Восстановление частичной резервной копии для файловой группы "MainData"
+RESTORE DATABASE TestDatabase
+FILEGROUP = 'MainData'
+FROM DISK = 'C:\Path\To\Backup\PartialMainDataBackup.bak'
+WITH REPLACE, RECOVERY;
+
+-- Восстановление частичной резервной копии для файловой группы "ArchiveData"
+RESTORE DATABASE TestDatabase
+FILEGROUP = 'ArchiveData'
+FROM DISK = 'C:\Path\To\Backup\PartialArchiveDataBackup.bak'
+WITH REPLACE, RECOVERY;
