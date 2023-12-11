@@ -37,7 +37,7 @@ BACKUP DATABASE TestDatabase
 	WITH INIT, FORMAT;
 go
 
-INSERT INTO MainDataTable2 VALUES (1, 'Product FF'); -- ЭТО КЛЮЧЕВОЙ МОМЕНТ, КОТОРЫЙ СЭКОНОМИТ КУЧУ ЭЛЕКТРОЭНЕРГИИ)))
+INSERT INTO MainDataTable2 VALUES (1, 'Product FF'); -- ЭТО КЛЮЧЕВОЙ МОМЕНТ, КОТОРЫЙ СЭКОНОМИТ КУЧУ ЭЛЕКТРОЭНЕРГИИ))) потом-что ArchiveData больше бэкапить ненадо
 
 BACKUP DATABASE TestDatabase
 	FILEGROUP = 'PRIMARY'
