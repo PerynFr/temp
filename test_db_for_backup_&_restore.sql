@@ -1,3 +1,4 @@
+--скрипт можно запустить одним батчем на тестовом sql server
 USE [master]
 GO
 drop database if exists [TestDatabase]
