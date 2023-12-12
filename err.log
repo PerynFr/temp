@@ -1,6 +1,9 @@
-Get-ChildItem -Path "C:\полный\путь\к\каталогу\" -Recurse | ForEach-Object {
+$targetPath = "C:\полный\путь\к\каталогу\"
+$searchString = "ваша_строка_с_переносами_строк"
+
+Get-ChildItem -Path $targetPath -Recurse | ForEach-Object {
     $content = Get-Content $_.FullName -Raw
-    $matches = [Regex]::Matches($content, "ваша_строка_с_переносами_строк")
+    $matches = [Regex]::Matches($content, $searchString)
     foreach ($match in $matches) {
         $lineNumber = $content.Substring(0, $match.Index).Split("`n").Count
         Write-Host "Файл: $_.FullName, Строка: $lineNumber, Содержимое: $($match.Value)"
