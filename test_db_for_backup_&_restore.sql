@@ -55,6 +55,7 @@ select * from ArchiveDataTable2;
 
 --имитируем вставку данных в файловую группу "PRIMARY"
 INSERT INTO MainDataTable2 VALUES (1, 'Product FF');
+--имитируем вставку данных в файловую группу "ArchiveData"
 INSERT INTO ArchiveDataTable2 VALUES (1, 'Note22 for ArchiveData');
 
 --бэкапим лог
@@ -68,6 +69,24 @@ BACKUP LOG [TestDatabase] TO DISK = N'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainD
                 STATS = 10 
 GO
 
+--имитируем вставку данных в файловую группу "PRIMARY"
+INSERT INTO MainDataTable2 VALUES (1, 'Product FF');
+--имитируем вставку данных в файловую группу "ArchiveData"
+INSERT INTO ArchiveDataTable2 VALUES (1, 'Note22 for ArchiveData');
+
+--бэкапим лог
+BACKUP LOG [TestDatabase] TO DISK = N'D:\MSSQL15.DBA01\MSSQL\Backup\PartialMainDataBackup.trn' 
+	WITH NOFORMAT,
+        NOINIT,
+        NAME = N'TestDatabase-Full Database Backup',
+                SKIP,
+                NOREWIND,
+                NOUNLOAD,
+                STATS = 10 
+GO
+
+
+
 
 -- Восстановление частичной резервной копии для файловой группы "PRIMARY"
 use master
@@ -78,7 +97,7 @@ RESTORE DATABASE TestDatabase
 	WITH REPLACE, RECOVERY;
 go
 
--- Восстановление частичной резервной копии для файловой группы "PRIMARY"
+-- Восстановление частичной резервной копии для файловой группы "ArchiveData"
 use master
 go
 RESTORE DATABASE TestDatabase
