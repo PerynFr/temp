@@ -3,3 +3,19 @@ select * from MainDataTable2;
 select * from ArchiveDataTable2;
 Msg 8653, Level 16, State 1, Line 96
 The query processor is unable to produce a plan for the table or view 'ArchiveDataTable2' because the table resides in a filegroup that is not online.
+
+USE [master];
+GO
+
+-- Переведем файловую группу 'ArchiveData' в режим ONLINE
+ALTER DATABASE [TestDatabase]
+MODIFY FILEGROUP [ArchiveData] ONLINE;
+GO
+
+-- Попробуем выполнить запросы снова
+USE [TestDatabase];
+GO
+
+-- Восстановим все таблицы и файловые группы
+RESTORE DATABASE [TestDatabase] WITH RECOVERY;
+
