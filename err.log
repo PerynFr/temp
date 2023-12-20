@@ -1,11 +1,1 @@
-$targetPath = "C:\полный\путь\к\каталогу\"
-$searchString = "ваша_строка_с_переносами_строк"
-
-Get-ChildItem -Path $targetPath -Recurse | ForEach-Object {
-    $content = Get-Content $_.FullName -Raw
-    $matches = [Regex]::Matches($content, $searchString)
-    foreach ($match in $matches) {
-        $lineNumber = $content.Substring(0, $match.Index).Split("`n").Count
-        Write-Host "Файл: $_.FullName, Строка: $lineNumber, Содержимое: $($match.Value)"
-    }
-}
+У меня в VDI перестал работать переход по ссылкам в браузер из почты, и других программ, помогите исправить пожалуйста
