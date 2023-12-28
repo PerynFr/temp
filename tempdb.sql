@@ -1,12 +1,10 @@
-USE tempdb;
-GO
+SELECT is_autoshrink_on, autoshrink_percent
+FROM sys.databases
+WHERE name = 'tempdb';
 
--- Удалите все временные таблицы с префиксами #
-EXEC sp_MSForEachTable "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '?' AND TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME LIKE '#%')
-    DROP TABLE ?";
-GO
+SELECT name, type_desc, physical_name
+FROM sys.master_files
+WHERE database_id = DB_ID('tempdb');
 
--- Удалите все временные таблицы с префиксами ##
-EXEC sp_MSForEachTable "IF EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '?' AND TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME LIKE '##%')
-    DROP TABLE ?";
-GO
+SELECT db_name(database_id) AS database_name, status, session_id
+FROM sys.dm_db_session_users;
