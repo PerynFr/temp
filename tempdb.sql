@@ -1,6 +1,6 @@
-EXEC sp_msforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all_constraints"
+USE [tempdb];
 GO
-DBCC SHRINKDATABASE (tempdb, 0)
+EXEC sp_MSforeachtable "IF (OBJECT_ID(N'[dbo].[##temp_##]') IS NOT NULL) DROP TABLE [dbo].[##temp_##];";
 GO
-EXEC sp_msforeachtable "ALTER TABLE ? WITH CHECK CHECK CONSTRAINT all_constraints"
+DBCC SHRINKDATABASE (tempdb, 0);
 GO
