@@ -91,7 +91,9 @@ INSERT INTO dm_pik_duio_rwa_work.mrod_rsa_stg_zp_spp_9 (
 	ccrt_subsec_coll_vtb_flg,
 	par_acnt_no,
 	par_deal_no,
-	rn) WITH RECURSIVE w034 AS (
+	rn) 
+	WITH RECURSIVE w034 
+	AS (
 	SELECT
 		w0_1.*,
 		ROW_NUMBER() OVER(PARTITION BY w0_1.row_num,
