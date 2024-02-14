@@ -1,5 +1,5 @@
-INSERT INTO
-	dm_pik_duio_rwa_work.mrod_rsa_stg_zp_spp_9 (par_rnum2,
+INSERT INTO dm_pik_duio_rwa_work.mrod_rsa_stg_zp_spp_9 (
+	par_rnum2,
 	par_cobj_gid2,
 	version_id,
 	hash_diff,
